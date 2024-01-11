@@ -1,0 +1,65 @@
+﻿@page "/personalDetails"
+@inject ILabelDictionaryService LabelDictionaryService 
+
+<h3>PersonalDetails</h3>
+<p>@person.Fname</p>
+<p>@person.Lname</p>
+<p>@person.Age</p>
+<p>@person.selectedOption</p>
+<p>@person.checkbox</p>
+<p>@person.radioOption</p>
+<p>@person.Email</p>
+<p>@person.Date</p>
+<EditForm Model="@person" OnValidSubmit="@HandleSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <ParameterizedInput Label="FName" InputType="text" TextValueChanged="person.SetFname" MainDivStyle="width:700px; display: flex; flex-direction: row; justify-content: space-between" InputStyle="width: 400px"/><br />
+    <ParameterizedInput Label="LName" InputType="text" TextValueChanged="person.SetLname" MainDivStyle="width:700px; display: flex; flex-direction: row; justify-content: space-between" InputStyle="width: 400px" /><br />
+    <ParameterizedInput Label="Email" InputType="email" TextValueChanged="person.SetEmail" MainDivStyle="width:700px; display: flex; flex-direction: row; justify-content: space-between" InputStyle="width: 400px" /><br />
+    <ParameterizedInput Label="Age" InputType="number" NumberValueChanged="person.SetAge" MainDivStyle="width:700px; display: flex; flex-direction: row; justify-content: space-between" InputStyle="width: 400px" /><br />
+    <ParameterizedInput Label="Select Option" InputType="select" SelectOptions="selectOptions" SelectedValueChanged="person.SetSelectedOption" MainDivStyle="width:700px; display: flex; flex-direction: row; justify-content: space-between" InputStyle="width: 400px" /><br />
+    <ParameterizedInput Label="Check Box" InputType="checkbox" CheckboxValueChanged="person.SetCheckbox" MainDivStyle="width:700px; display: flex; flex-direction: row; justify-content: space-between" InputStyle="width: 400px" /><br />
+    @if (person.checkbox)
+    {
+        <ParameterizedInput Label="Spouse Name" InputType="text" MainDivStyle="width:700px; display: flex; flex-direction: row; justify-content: space-between" InputStyle="width: 400px" />
+        <br />
+    }
+    <ParameterizedInput Label="Radio Options" InputType="radio" SelectOptions="radioOptions" SelectedValueChanged="person.SetRadioOption" InputStyle="width: 400px" /><br />
+    <ParameterizedInput Label="Date" InputType="date" MinValue="DateTime.Today" DateValueChanged="person.SetDate" MainDivStyle="width:700px; display: flex; flex-direction: row; justify-content: space-between" InputStyle="width: 400px" /><br />
+    <button type="submit">Submit</button>
+</EditForm>
+
+
+
+
+@code {
+    private Person person = new Person();
+
+    private Dictionary<int, string> Labels;
+
+    protected override void OnInitialized()
+    {
+        Labels = LabelDictionaryService.GetLabelDictionary();
+    }
+
+    private List<SelectOption> radioOptions = new List<SelectOption>
+    {
+        new SelectOption { Value = "option1", Text = "Option 1" },
+        new SelectOption { Value = "option2", Text = "Option 2" },
+        new SelectOption { Value = "option3", Text = "Option 3" }
+    };
+
+    private List<SelectOption> selectOptions = new List<SelectOption>
+    {
+        new SelectOption { Value = "1", Text = "Option 1" },
+        new SelectOption { Value = "2", Text = "Option 2" },
+        new SelectOption { Value = "3", Text = "Option 3" }
+    };
+
+    private void HandleSubmit()
+    {
+        Console.WriteLine($"Fname: {person.Fname}");
+        Console.WriteLine(person);
+    }
+
+}

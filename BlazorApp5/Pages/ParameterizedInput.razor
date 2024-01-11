@@ -1,0 +1,131 @@
+﻿<div class="form-group" style="@MainDivStyle">
+    <label>@Label</label>&nbsp;&nbsp;
+    @if (InputType == "select")
+    {
+        <select class="form-control" @onchange="OnSelectValueChanged" style="@InputStyle">
+            @foreach (var option in SelectOptions)
+            {
+                <option value="@option.Value">@option.Text</option>
+            }
+        </select>
+    }
+    else if (InputType == "number")
+    {
+        <input type="number" class="form-control" @oninput="OnNumberValueChanged" style="@InputStyle" />
+    }
+    else if (InputType == "checkbox")
+    {
+        <input type="checkbox" @onchange="OnCheckboxValueChanged" style="@InputStyle" />
+    }
+    else if (InputType == "radio")
+    {
+        @foreach (var option in SelectOptions)
+        {
+            <div>
+                <input type="radio" id="@option.Value" name="@Label" value="@option.Value" @onchange="() => OnRadioValueChanged(option.Value)" style="@InputStyle" />
+                <label for="@option.Value">@option.Text</label>
+            </div>
+        }
+    }
+    else if (InputType == "date")
+    {
+        <input type="date" class="form-control" @onchange="OnDateValueChanged" @attributes="GetDateInputAttributes()" style="@InputStyle" />
+    }
+    else
+    {
+        <input type="@InputType" class="form-control" @oninput="OnInputValueChanged" style="@InputStyle" />
+    }
+    <br/>
+</div>
+
+@code {
+    [Parameter] 
+    public string Label { get; set; }
+    [Parameter] 
+    public string InputType { get; set; } = "text";
+    [Parameter] 
+    public string SelectedValue { get; set; } 
+    [Parameter] 
+    public string CheckboxValue { get; set; } 
+    [Parameter] 
+    public List<SelectOption> SelectOptions { get; set; } = new List<SelectOption>();
+    [Parameter]
+    public DateTime? MinValue { get; set; }
+    [Parameter]
+    public DateTime? MaxValue { get; set; }
+    [Parameter]
+    public string InputStyle { get; set; }
+    [Parameter]
+    public string MainDivStyle { get; set; }
+    [Parameter] 
+    public EventCallback<string> TextValueChanged { get; set; }
+    [Parameter] 
+    public EventCallback<string> SelectedValueChanged { get; set; }
+    [Parameter] 
+    public EventCallback<int> NumberValueChanged { get; set; }
+    [Parameter] 
+    public EventCallback<bool> CheckboxValueChanged { get; set; }
+    [Parameter]
+    public EventCallback<DateTime> DateValueChanged { get; set; }
+
+
+    private async Task OnInputValueChanged(ChangeEventArgs e)
+    {
+        await TextValueChanged.InvokeAsync(e.Value?.ToString());
+    }
+
+    private async Task OnSelectValueChanged(ChangeEventArgs e)
+    {
+        await SelectedValueChanged.InvokeAsync(e.Value?.ToString());
+    }
+
+    private async Task OnNumberValueChanged(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out int parsedValue))
+        {
+            await NumberValueChanged.InvokeAsync(parsedValue);
+        }
+    }
+
+    private async Task OnCheckboxValueChanged(ChangeEventArgs e)
+    {
+        if (bool.TryParse(e.Value?.ToString(), out bool checkboxValue))
+        {
+            await CheckboxValueChanged.InvokeAsync(checkboxValue);
+        }
+    }
+
+    private async Task OnRadioValueChanged(string value)
+    {
+        await SelectedValueChanged.InvokeAsync(value);
+    }
+
+    private async Task OnDateValueChanged(ChangeEventArgs e)
+    {
+        if (DateTime.TryParse(e.Value?.ToString(), out DateTime parsedDate))
+        {
+            await DateValueChanged.InvokeAsync(parsedDate);
+        }
+        else
+        {
+            // Handle invalid date input
+        }
+    }
+
+    private IDictionary<string, object> GetDateInputAttributes()
+    {
+        var attributes = new Dictionary<string, object>();
+
+        if (MinValue.HasValue)
+        {
+            attributes["min"] = MinValue.Value.ToString("yyyy-MM-dd");
+        }
+
+        if (MaxValue.HasValue)
+        {
+            attributes["max"] = MaxValue.Value.ToString("yyyy-MM-dd");
+        }
+
+        return attributes;
+    }
+}
